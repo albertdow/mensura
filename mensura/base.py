@@ -1,6 +1,5 @@
 from typing import DefaultDict
-from collections import defaultdict
-import heapq
+from collections import defaultdict, deque
 
 from mensura.conversions import CONVERSIONS, Conversion
 from mensura.exceptions import ConversionException, UnitNotFoundException
@@ -22,7 +21,13 @@ class Converter:
             self.add_conversion(conversion)
 
     def add_conversion(self, conversion: Conversion):
-        """Add bidirectional conversion to graph"""
+        """Add bidirectional conversion to graph.
+
+        Parameters
+        ----------
+        conversion : Conversion
+            A conversion object that holds (from_unit, to_unit, conversion_factor)
+        """
         src_unit = conversion.src_unit.lower()
         dest_unit = conversion.dest_unit.lower()
 
@@ -30,7 +35,21 @@ class Converter:
         self.graph[dest_unit][src_unit] = 1 / conversion.factor
 
     def convert(self, value: int | float, from_unit: str, to_unit: str) -> int | float:
-        """Apply Dijkstra's algorithm to convert units using shortest path."""
+        """Apply BFS algorithm to convert units using shortest path.
+
+        Parameters
+        ----------
+        value : int | float
+            The value of the quantity to be converted.
+        from_unit : str
+            The source unit of the conversion.
+        to_unit : str
+            The destination unit of the conversion.
+
+        Returns
+        -------
+        value in destination unit : int | float
+        """
         from_unit = from_unit.lower()
         to_unit = to_unit.lower()
 
@@ -39,19 +58,20 @@ class Converter:
                 f"Conversion from {from_unit} to {to_unit} not possible..."
             )
 
-        priority_queue = [(1.0, from_unit)]
-        visited = {from_unit: 1.0}
+        queue = deque([(1.0, from_unit)])
+        visited: set[str] = set()
 
-        while priority_queue:
-            current_factor, current_unit = heapq.heappop(priority_queue)
+        while queue:
+            print(queue)
+            current_factor, current_unit = queue.popleft()
 
             if current_unit == to_unit:
                 return value * current_factor
 
+            visited.add(current_unit)
+
             for neighbour, factor in self.graph[current_unit].items():
-                updated_factor = current_factor * factor
-                if neighbour not in visited or updated_factor < visited[neighbour]:
-                    visited[neighbour] = updated_factor
-                    heapq.heappush(priority_queue, (updated_factor, neighbour))
+                if neighbour not in visited:
+                    queue.append((current_factor * factor, neighbour))
 
         raise ConversionException(f"Conversion from {from_unit} to {to_unit} failed.")
