@@ -1,7 +1,7 @@
 from typing import DefaultDict
 from collections import defaultdict, deque
 
-from mensura.conversions import CONVERSIONS, Conversion
+from mensura.conversions import CONVERSIONS, ABBREVIATIONS, Conversion
 from mensura.exceptions import ConversionException, UnitNotFoundException
 
 
@@ -20,6 +20,10 @@ class Converter:
         for conversion in CONVERSIONS:
             self.add_conversion(conversion)
 
+    def _resolve_unit(self, unit: str) -> str:
+        unit = unit.lower()
+        return ABBREVIATIONS.get(unit, unit)
+
     def add_conversion(self, conversion: Conversion):
         """Add bidirectional conversion to graph.
 
@@ -28,8 +32,8 @@ class Converter:
         conversion : Conversion
             A conversion object that holds (from_unit, to_unit, conversion_factor)
         """
-        src_unit = conversion.src_unit.lower()
-        dest_unit = conversion.dest_unit.lower()
+        src_unit = self._resolve_unit(conversion.src_unit)
+        dest_unit = self._resolve_unit(conversion.dest_unit)
 
         self.graph[src_unit][dest_unit] = conversion.factor
         self.graph[dest_unit][src_unit] = 1 / conversion.factor
@@ -50,8 +54,8 @@ class Converter:
         -------
         value in destination unit : int | float
         """
-        from_unit = from_unit.lower()
-        to_unit = to_unit.lower()
+        from_unit = self._resolve_unit(from_unit)
+        to_unit = self._resolve_unit(to_unit)
 
         if from_unit not in self.graph or to_unit not in self.graph:
             raise UnitNotFoundException(
