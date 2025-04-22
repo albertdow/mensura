@@ -9,7 +9,6 @@ def converter():
 
 
 def test_length_conversion(converter: Converter):
-    print("hell")
     assert converter.convert(1, "kilometre", "foot") == pytest.approx(3280.84)
     assert converter.convert(1, "foot", "centimetre") == pytest.approx(30.48)
     assert converter.convert(2, "inch", "millimetre") == pytest.approx(50.8)
