@@ -62,7 +62,6 @@ class Converter:
         visited: set[str] = set()
 
         while queue:
-            print(queue)
             current_factor, current_unit = queue.popleft()
 
             if current_unit == to_unit:
