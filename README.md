@@ -15,7 +15,7 @@ Currently only supports basic length and time units.
 ## Usage
 
 ```python
-from mensura.base import Converter
+from mensura import Converter
 converter = Converter()
 converter.convert(1.0, "km", "m")
 ```
