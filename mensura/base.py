@@ -38,12 +38,17 @@ class Converter:
         self.graph[src_unit][dest_unit] = conversion.factor
         self.graph[dest_unit][src_unit] = 1 / conversion.factor
 
-    def convert(self, value: int | float, from_unit: str, to_unit: str) -> int | float:
+    def convert(
+        self,
+        value: str | int | float,
+        from_unit: str,
+        to_unit: str,
+    ) -> int | float:
         """Apply BFS algorithm to convert units using shortest path.
 
         Parameters
         ----------
-        value : int | float
+        value : str | int | float
             The value of the quantity to be converted.
         from_unit : str
             The source unit of the conversion.
@@ -54,6 +59,9 @@ class Converter:
         -------
         value in destination unit : int | float
         """
+        if isinstance(value, str):
+            value = float(value)
+
         from_unit = self._resolve_unit(from_unit)
         to_unit = self._resolve_unit(to_unit)
 
