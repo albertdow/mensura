@@ -25,6 +25,12 @@ def test_time_conversion(converter: Converter):
     assert converter.convert(1, "d", "s") == 86_400
 
 
+def test_speed_conversion(converter: Converter):
+    assert converter.convert(20, "mph", "km/h") == pytest.approx(32.18688)
+    assert converter.convert("20", "m/s", "mph") == pytest.approx(44.73872)
+    assert converter.convert(20.0, "mph", "m/s") == pytest.approx(8.9408012)
+
+
 def test_custom_conversion(converter: Converter):
     converter.add_conversion(Conversion("mile", "kilometre", 1.60934))
     assert converter.convert(152.2, "mile", "kilometre") == pytest.approx(244.941548)
